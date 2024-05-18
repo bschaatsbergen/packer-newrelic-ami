@@ -39,15 +39,43 @@ build {
     "source.amazon-ebs.al2023_x86_64_source"
   ]
 
+  # Create a /tmp/newrelic directory
+  # Packer can't directly write to /etc/newrelic-infra/ because it runs as a non-root user
   provisioner "shell" {
-    environment_vars = [
-      "NRIA_LICENSE_KEY=${data.amazon-secretsmanager.newrelic_api_key.secret_string}",
-    ]
     inline = [
-      "echo \"license_key: $NRIA_LICENSE_KEY\" | sudo tee -a /etc/newrelic-infra.yml &> /dev/null",
+      "sudo mkdir -p /tmp/newrelic",
+    ]
+  }
+
+  # Write a templated New Relic Infrastructure Agent (NRIA) configuration file
+  provisioner "file" {
+    destination = "/tmp/newrelic-infra.yml"
+    content = templatefile("${path.root}/newrelic-infra.pkrtpl.hcl", {
+      license_key = data.amazon-secretsmanager.newrelic_api_key.secret_string,
+    })
+  }
+
+  # Move the NRIA configuration file to /etc/newrelic-infra/
+  provisioner "shell" {
+    inline = [
+      "sudo mkdir -p /etc/newrelic-infra",
+      "sudo mv /tmp/newrelic-infra.yml /etc/newrelic-infra/newrelic-infra.yml",
+    ]
+  }
+
+  # Install the NRIA (x86_64)
+  provisioner "shell" {
+    inline = [
       "sudo curl -o /etc/yum.repos.d/newrelic-infra.repo https://download.newrelic.com/infrastructure_agent/linux/yum/amazonlinux/2023/x86_64/newrelic-infra.repo",
       "sudo yum -q makecache -y --disablerepo='*' --enablerepo='newrelic-infra'",
       "sudo yum install newrelic-infra -y",
+    ]
+  }
+
+  # Install the Amazon CloudWatch Agent
+  provisioner "shell" {
+    inline = [
+      "sudo yum install -y amazon-cloudwatch-agent",
     ]
   }
 }
