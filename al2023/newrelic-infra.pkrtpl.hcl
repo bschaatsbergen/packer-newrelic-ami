@@ -143,10 +143,10 @@ enable_process_metrics: true
 # Tip      : Run the agent in debug mode only for troubleshooting. To disable
 #            debug logging, set the level to info and restart the agent.
 # Tip      : The following configuration will only log the entries with the field integration_name=nri-flex or integration_name=nri-powerdns
-#log:
-#  file: /tmp/agent.log
-#  format: json
-#  level: smart
+log:
+  file: /var/log/newrelic-infra/newrelic-infra.log
+  format: json
+  level: smart
 #  forward: false
 #  stdout: false
 #  smart_level_entry_limit: 500

@@ -44,10 +44,11 @@ build {
   provisioner "shell" {
     inline = [
       "sudo mkdir -p /tmp/newrelic",
+      "sudo mkdir -p /tmp/amazon-cloudwatch-agent",
     ]
   }
 
-  # Write a templated New Relic Infrastructure Agent (NRIA) configuration file
+  # Write a templated New Relic Infrastructure Agent (NRIA) configuration
   provisioner "file" {
     destination = "/tmp/newrelic-infra.yml"
     content = templatefile("${path.root}/newrelic-infra.pkrtpl.hcl", {
@@ -55,7 +56,7 @@ build {
     })
   }
 
-  # Move the NRIA configuration file to /etc/newrelic-infra/
+  # Move the NRIA configuration to /etc/newrelic-infra/
   provisioner "shell" {
     inline = [
       "sudo mkdir -p /etc/newrelic-infra",
@@ -76,6 +77,26 @@ build {
   provisioner "shell" {
     inline = [
       "sudo yum install -y amazon-cloudwatch-agent",
+    ]
+  }
+
+  # Write the Amazon CloudWatch Agent configuration
+  provisioner "file" {
+    destination = "/tmp/amazon-cloudwatch-agent/config.json"
+    content     = "${path.root}/amazon-cloudwatch-agent-config.json"
+  }
+
+  # Move the Amazon CloudWatch Agent configuration
+  provisioner "shell" {
+    inline = [
+      "sudo mv /tmp/amazon-cloudwatch-agent/config.json /opt/aws/amazon-cloudwatch-agent/bin/config.json",
+    ]
+  }
+
+  # Start the Amazon CloudWatch Agent
+  provisioner "shell" {
+    inline = [
+      "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s",
     ]
   }
 }
