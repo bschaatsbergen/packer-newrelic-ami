@@ -14,7 +14,7 @@ packer {
 # Retrieve the New Relic API key from AWS Secrets Manager
 data "amazon-secretsmanager" "newrelic_api_key" {
   name   = "newrelic/apikey"
-  region = "us-west-2"
+  region = var.region
 }
 
 # Create a new AMI based on the latest Amazon Linux 2023 AMI
@@ -22,8 +22,8 @@ source "amazon-ebs" "al2023_x86_64_source" {
   ami_name        = "newrelic-al2023-{{timestamp}}"
   ami_description = "Amazon Linux 2023 with New Relic Infrastructure Agent"
 
-  region        = "us-west-2"
-  instance_type = "t2.micro"
+  region        = var.region
+  instance_type = var.instance_type
   source_ami_filter {
     filters = {
       image-id            = "ami-01cd4de4363ab6ee8" # Amazon Linux 2023 (64-bit (x86_64), uefi-preferred) 
