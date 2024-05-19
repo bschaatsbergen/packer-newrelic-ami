@@ -39,8 +39,8 @@ build {
     "source.amazon-ebs.al2023_x86_64_source"
   ]
 
-  # Create a /tmp/newrelic directory
-  # Packer can't directly write to /etc/newrelic-infra/ because it runs as a non-root user
+  # Create a /tmp/newrelic directory & /tmp/amazon-cloudwatch-agent directory
+  # Packer can't directly write to other directories because it runs as a non-root user
   provisioner "shell" {
     inline = [
       "sudo mkdir -p /tmp/newrelic",
