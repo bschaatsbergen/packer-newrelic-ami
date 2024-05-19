@@ -39,15 +39,6 @@ build {
     "source.amazon-ebs.al2023_x86_64_source"
   ]
 
-  # Create a /tmp/newrelic directory & /tmp/amazon-cloudwatch-agent directory
-  # Packer can't directly write to other directories because it runs as a non-root user
-  provisioner "shell" {
-    inline = [
-      "sudo mkdir -p /tmp/newrelic",
-      "sudo mkdir -p /tmp/amazon-cloudwatch-agent",
-    ]
-  }
-
   # Write a templated New Relic Infrastructure Agent (NRIA) configuration
   provisioner "file" {
     destination = "/tmp/newrelic-infra.yml"
@@ -82,14 +73,14 @@ build {
 
   # Write the Amazon CloudWatch Agent configuration
   provisioner "file" {
-    destination = "/tmp/amazon-cloudwatch-agent/config.json"
-    content     = "${path.root}/amazon-cloudwatch-agent-config.json"
+    destination = "/tmp/amazon-cloudwatch-agent-config.json"
+    content     = file("${path.root}/amazon-cloudwatch-agent-config.json")
   }
 
   # Move the Amazon CloudWatch Agent configuration
   provisioner "shell" {
     inline = [
-      "sudo mv /tmp/amazon-cloudwatch-agent/config.json /opt/aws/amazon-cloudwatch-agent/bin/config.json",
+      "sudo mv /tmp/amazon-cloudwatch-agent-config.json /opt/aws/amazon-cloudwatch-agent/bin/config.json",
     ]
   }
 
