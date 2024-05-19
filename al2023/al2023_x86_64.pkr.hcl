@@ -80,6 +80,7 @@ build {
   # Move the Amazon CloudWatch Agent configuration
   provisioner "shell" {
     inline = [
+      "sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/bin/",
       "sudo mv /tmp/amazon-cloudwatch-agent-config.json /opt/aws/amazon-cloudwatch-agent/bin/config.json",
     ]
   }
