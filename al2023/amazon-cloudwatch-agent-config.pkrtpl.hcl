@@ -16,7 +16,7 @@
             "retention_in_days": 7
           },
           {
-            "file_path": "/var/log/newrelic-infra/newrelic-infra.log",
+            "file_path": "${nria_log_file}",
             "log_group_name": "/aws/ec2/{instance_id}/newrelic-infra-agent",
             "log_stream_name": "newrelic-infra-agent",
             "timestamp_format": "%d/%b/%Y:%H:%M:%S %z",

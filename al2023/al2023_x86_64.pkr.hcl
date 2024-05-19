@@ -1,3 +1,7 @@
+locals {
+  nria_log_file = "/var/log/newrelic-infra/newrelic-infra.log"
+}
+
 packer {
   required_plugins {
     amazon = {
@@ -43,7 +47,8 @@ build {
   provisioner "file" {
     destination = "/tmp/newrelic-infra.yml"
     content = templatefile("${path.root}/newrelic-infra.pkrtpl.hcl", {
-      license_key = data.amazon-secretsmanager.newrelic_api_key.secret_string,
+      license_key   = data.amazon-secretsmanager.newrelic_api_key.secret_string,
+      nria_log_file = local.nria_log_file,
     })
   }
 
@@ -74,7 +79,9 @@ build {
   # Write the Amazon CloudWatch Agent configuration
   provisioner "file" {
     destination = "/tmp/amazon-cloudwatch-agent-config.json"
-    content     = file("${path.root}/amazon-cloudwatch-agent-config.json")
+    content = templatefile("${path.root}/amazon-cloudwatch-agent-config.pkrtpl.hcl", {
+      nria_log_file = local.nria_log_file,
+    })
   }
 
   # Move the Amazon CloudWatch Agent configuration

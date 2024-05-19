@@ -5,6 +5,6 @@ license_key: ${license_key}
 enable_process_metrics: true
 
 log:
-  file: /var/log/newrelic-infra/newrelic-infra.log
+  file: ${nria_log_file}
   format: json
   level: smart
